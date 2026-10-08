@@ -1,0 +1,2 @@
+base: ../base.yaml
+task: three_class     # 0 = No DR, 1 = Early, 2 = Late

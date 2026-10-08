@@ -1,0 +1,51 @@
+# Defaults for every experiment. Experiment files change ONE thing from here.
+seed: 42
+
+paths:                       # edit these for your Kaggle datasets
+  ddr: /kaggle/input/ddr-dataset
+  eyepacs: /kaggle/input/diabetic-retinopathy-detection
+  idrid: /kaggle/input/idrid
+  aptos: /kaggle/input/aptos2019-blindness-detection
+  ddr_lesions: null          # optional: folder with DDR lesion masks (saliency overlap)
+  work: /kaggle/working      # manifest, processed images, runs are written here
+
+data:
+  prep_size: 512             # size of the cached, preprocessed images
+  arm: A                     # A = DDR only, B = DDR + EyePACS source-balanced, C = version 1 merge
+  split_seed: 2024           # seed used ONCE to freeze the EyePACS patient split
+  eyepacs_fractions: [0.70, 0.15, 0.15]   # train / val / test, split by patient
+
+task: stage1                 # stage1 (0 vs 1-4) | stage2 (1-2 vs 3-4) | three_class | five_grade
+
+model:
+  backbone: efficientnet_b0  # or vit (RETFound weights via pretrained_path)
+  pretrained: true           # ImageNet weights from timm (needs internet on Kaggle)
+  pretrained_path: null
+  image_size: 512
+
+train:
+  epochs: 10
+  batch_size: 16
+  lr: 0.0003
+  weight_decay: 0.0001
+  workers: 4
+  amp: true
+
+imbalance:
+  sampler: none              # none | weighted | class_aware | repeat_factor
+  loss: ce                   # ce | cb_ce | smoothed_ce | focal
+  focal_gamma: 2.0
+  aug: mild                  # mild | strong
+  aug_scope: all             # all | minority  (minority = every class except the largest)
+  repeat_threshold: 0.3      # repeat-factor sampling: classes rarer than this are repeated
+  repeat_cap: 4.0            # ...at most this many times (keeps grades 3 and 4 from being memorised)
+colour_norm: none            # none | graham (colour and illumination normalisation)
+
+declared:                    # written down BEFORE any test split is opened
+  specificity: 0.90
+  primary: "Sensitivity for early DR (grades 1-2) vs No DR at the declared specificity"
+
+eval:
+  adabn: false               # re-estimate BatchNorm statistics on each unseen source
+  prior_correction: true
+  bootstrap: 1000            # patient-level bootstrap resamples

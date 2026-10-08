@@ -1,0 +1,11 @@
+# Kaggle images already include everything except possibly timm
+torch
+torchvision
+timm
+numpy
+pandas
+scikit-learn
+scipy
+opencv-python-headless
+pyyaml
+matplotlib

@@ -1,0 +1,2 @@
+base: ../base.yaml
+eval: {adabn: true}   # re-run with --stage evaluate on an existing model of the same name

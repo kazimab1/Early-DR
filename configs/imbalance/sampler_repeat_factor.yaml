@@ -1,0 +1,2 @@
+base: baseline.yaml
+imbalance: {sampler: repeat_factor}

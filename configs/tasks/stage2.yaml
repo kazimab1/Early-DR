@@ -1,0 +1,2 @@
+base: ../base.yaml
+task: stage2          # early (1-2) vs late (3-4), DR-positive images only

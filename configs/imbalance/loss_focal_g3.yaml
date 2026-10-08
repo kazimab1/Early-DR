@@ -1,0 +1,2 @@
+base: baseline.yaml
+imbalance: {loss: focal, focal_gamma: 3.0}

@@ -1,0 +1,3 @@
+base: baseline.yaml
+# the CONTROL: the same strong augmentation on every class
+imbalance: {aug: strong, aug_scope: all}

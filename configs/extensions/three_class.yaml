@@ -1,0 +1,2 @@
+base: ../base.yaml
+task: three_class

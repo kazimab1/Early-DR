@@ -1,0 +1,5 @@
+base: ../base.yaml
+# first: python -m early_dr.prepare_data configs/base.yaml --set data.prep_size=768
+data: {prep_size: 768}
+model: {image_size: 768}
+train: {batch_size: 8}

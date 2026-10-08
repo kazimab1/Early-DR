@@ -1,0 +1,3 @@
+base: baseline.yaml
+# Edit AFTER the ablations: best sampler + best loss + best augmentation.
+imbalance: {sampler: weighted, loss: cb_ce, aug: mild, aug_scope: all}
