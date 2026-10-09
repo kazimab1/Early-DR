@@ -6,7 +6,7 @@ No segmentation model is trained anywhere. Written to run on **Kaggle** (`kaggle
 
 ## How to run on Kaggle
 1. New notebook, upload `kaggle_notebook.ipynb`, turn on **GPU** and **Internet**.
-2. Add the datasets: DDR, EyePACS (diabetic-retinopathy-detection), IDRiD, APTOS 2019.
+2. Add the datasets: DDR, EyePACS (diabetic-retinopathy-detection), APTOS 2019. (IDRiD is optional: set `paths.idrid`.)
 3. Edit the `PATHS` cell, then run the cells top to bottom.
 
 Everything the notebook does is a `python -m early_dr.<module>` command, so you can also run them one by one.

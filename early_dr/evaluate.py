@@ -122,8 +122,9 @@ def test_sets(manifest, cfg, external):
     if cfg.data.arm != "A":                             # the arm's own pooled test split
         sets["arm_test"] = select_arm(manifest, cfg.data.arm, "test")
     if external:
-        sets["IDRiD"] = manifest[manifest.source == "IDRiD"]
-        sets["APTOS"] = manifest[manifest.source == "APTOS"]
+        for source in ["IDRiD", "APTOS"]:               # only those that were loaded
+            if (manifest.source == source).any():
+                sets[source] = manifest[manifest.source == source]
     return {k: v.reset_index(drop=True) for k, v in sets.items()}
 
 

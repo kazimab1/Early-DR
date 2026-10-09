@@ -4,7 +4,7 @@ seed: 42
 paths:                       # edit these for your Kaggle datasets
   ddr: /kaggle/input/ddr-dataset
   eyepacs: /kaggle/input/diabetic-retinopathy-detection
-  idrid: /kaggle/input/idrid
+  idrid: null                # not used in this project (set a path to add IDRiD)
   aptos: /kaggle/input/aptos2019-blindness-detection
   ddr_lesions: null          # optional: folder with DDR lesion masks (saliency overlap)
   work: /kaggle/working      # manifest, processed images, runs are written here

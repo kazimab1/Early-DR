@@ -122,8 +122,12 @@ def build_manifest(cfg):
     ddr = load_ddr(cfg.paths.ddr)
     eyepacs = split_eyepacs_by_patient(load_eyepacs(cfg.paths.eyepacs),
                                        cfg.data.eyepacs_fractions, cfg.data.split_seed)
-    manifest = pd.concat([ddr, eyepacs, load_idrid(cfg.paths.idrid), load_aptos(cfg.paths.aptos)],
-                         ignore_index=True)
+    parts = [ddr, eyepacs]
+    if cfg.paths.idrid:                                 # IDRiD is optional: set paths.idrid=null to skip
+        parts.append(load_idrid(cfg.paths.idrid))
+    if cfg.paths.aptos:
+        parts.append(load_aptos(cfg.paths.aptos))
+    manifest = pd.concat(parts, ignore_index=True)
     manifest.to_csv(frozen, index=False)
     print("Splits frozen ->", frozen)
     return manifest
