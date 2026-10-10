@@ -5,6 +5,8 @@ at a pre-declared specificity, calibrated probabilities, and tests on unseen dat
 No segmentation model is trained anywhere. Written to run on **Kaggle** (`kaggle_notebook.ipynb`).
 
 ## How to run on Kaggle
+Run the numbered files in `steps/` in order (`01_prepare_data.py` ... `11_figures.py`); dataset paths and seeds are in `steps/settings.py`. `kaggle_notebook.ipynb` just calls them one per cell.
+
 1. New notebook, upload `kaggle_notebook.ipynb`, turn on **GPU** and **Internet**.
 2. Add the datasets: DDR, EyePACS (diabetic-retinopathy-detection), APTOS 2019. (IDRiD is optional: set `paths.idrid`.)
 3. Edit the `PATHS` cell, then run the cells top to bottom.
