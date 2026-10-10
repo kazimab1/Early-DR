@@ -61,3 +61,9 @@ Outputs (in `/kaggle/working`): `splits.csv`, `manifest.csv`, `processed_512/`, 
 * The ViT/RETFound path and the DDR lesion-overlap check need files I could not test (RETFound checkpoint, lesion masks).
 * Saliency (Grad-CAM) supports the CNN backbone only.
 * The novelty claims in the plan are left to the literature search, as the plan says.
+
+## Figures (`python -m early_dr.plots`)
+Written to `<work>/figures/`: `01_class_distribution`, `02_training_<run>`, `03_roc_pr_<run>`, `04_reliability_<run>`,
+`05_flagged_by_grade_<run>`, `06_confusion_<run>` (five-grade runs), `07_comparison_sensitivity` / `_auroc`
+(arms side by side, per source, 95% CI), `08_validation_scores`. Plus the Grad-CAM pictures from `saliency.py`.
+Figures are drawn from the saved `results.json` / `preds_*.csv`; no model is loaded.
