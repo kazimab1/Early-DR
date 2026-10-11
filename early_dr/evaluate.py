@@ -2,8 +2,8 @@
 
 Rules from the plan this file enforces:
   * thresholds, temperature and prior correction come from VALIDATION data only (fit_calibration)
-  * internal test sets are opened first; IDRiD and APTOS only with external=True, and every
-    opening is written to test_opened.log
+  * internal test sets are opened first; the external sets (APTOS) only with external=True, and
+    every opening is written to test_opened.log
   * every metric is reported per source, with patient-level bootstrap 95% intervals
 """
 import copy
@@ -117,14 +117,15 @@ def compute_metrics(df, prob, cal, cfg):
 # ----- step 3: run on the test sets -------------------------------------------------------------
 
 def test_sets(manifest, cfg, external):
+    """Internal sets (DDR test, held-out EyePACS patients, the arm's pooled test) or, with
+    external=True, ONLY the external sets (APTOS, IDRiD if loaded). Each group is opened once."""
+    if external:
+        return {source: manifest[manifest.source == source].reset_index(drop=True)
+                for source in ["IDRiD", "APTOS"] if (manifest.source == source).any()}
     sets = {"DDR": select_arm(manifest, "A", "test"),
             "EyePACS": manifest[(manifest.source == "EyePACS") & (manifest.split == "test")]}
     if cfg.data.arm != "A":                             # the arm's own pooled test split
         sets["arm_test"] = select_arm(manifest, cfg.data.arm, "test")
-    if external:
-        for source in ["IDRiD", "APTOS"]:               # only those that were loaded
-            if (manifest.source == source).any():
-                sets[source] = manifest[manifest.source == source]
     return {k: v.reset_index(drop=True) for k, v in sets.items()}
 
 

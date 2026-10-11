@@ -2,6 +2,7 @@
 import json
 import os
 import random
+import time
 
 import numpy as np
 import torch
@@ -65,6 +66,7 @@ def train(cfg, manifest):
 
     best, history = -1.0, []
     for epoch in range(1, cfg.train.epochs + 1):
+        started = time.time()
         model.train()
         total, n_batches = 0.0, 0
         for images, labels, _ in train_loader:
@@ -82,7 +84,8 @@ def train(cfg, manifest):
         val_prob = softmax(predict_logits(model, val_loader, device, cfg.train.amp))
         score = selection_score(val_prob, val_df.grade.values, task)
         history.append({"epoch": epoch, "train_loss": total / max(n_batches, 1), "val_score": score})
-        print(f"  epoch {epoch}: train loss {total / max(n_batches, 1):.4f}, validation score {score:.4f}")
+        print(f"  epoch {epoch}: train loss {total / max(n_batches, 1):.4f}, validation score {score:.4f}, "
+              f"{time.time() - started:.0f} s")
         if score > best:
             best = score
             torch.save(model.state_dict(), os.path.join(out, "best.pt"))

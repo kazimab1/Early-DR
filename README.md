@@ -5,7 +5,7 @@ at a pre-declared specificity, calibrated probabilities, and tests on unseen dat
 No segmentation model is trained anywhere. Written to run on **Kaggle** (`kaggle_notebook.ipynb`).
 
 ## How to run on Kaggle
-Run the numbered files in `steps/` in order (`01_prepare_data.py` ... `11_figures.py`); dataset paths and seeds are in `steps/settings.py`. `kaggle_notebook.ipynb` just calls them one per cell.
+See `RUN_INSTRUCTIONS.md` for Kaggle setup and timings. Run the numbered files in `steps/` in order (`01_prepare_data.py` ... `11_figures.py`); dataset paths and seeds are in `steps/settings.py`. `kaggle_notebook.ipynb` just calls them one per cell.
 
 1. New notebook, upload `kaggle_notebook.ipynb`, turn on **GPU** and **Internet**.
 2. Add the datasets: DDR, EyePACS (diabetic-retinopathy-detection), APTOS 2019. (IDRiD is optional: set `paths.idrid`.)
@@ -37,7 +37,7 @@ Everything the notebook does is a `python -m early_dr.<module>` command, so you 
 3. **One change per run** - one config file per experiment; each file lists only what it changes from its parent (`base: ...`). Extra changes: `--set key=value`. Use `--set name=...` if you change something without a new file, otherwise the run folder is reused.
 4. **Select on validation only** - the best epoch, temperature, prior correction and threshold all come from validation data.
 5. **Measure the noise** - `--seeds 42 43 44`, then `summarise.py`.
-6. **Open the test once, external last** - IDRiD and APTOS are read only with `--external`.
+6. **Open the test once, external last** - the evaluate stage opens the internal sets only; the external set (APTOS) is opened separately with `--external`.
 
 ## Definitions used (so the numbers can be checked)
 * **Early-vs-none (primary):** images of grade 0, 1, 2 only; positive = grade 1-2. Score = P(any DR) = 1 - P(grade 0).

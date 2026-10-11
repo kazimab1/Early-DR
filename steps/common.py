@@ -12,7 +12,12 @@ WORK = dict(i.split('=', 1) for i in settings.EXTRA if i.startswith('paths.work=
 
 def overrides(*more):
     """--set arguments: dataset paths, any test overrides, then step-specific ones."""
-    items = [f"{k}={v}" for k, v in settings.PATHS.items()] + settings.EXTRA + list(more)
+    missing = [k for k, v in settings.PATHS.items() if not v]
+    if missing and not settings.EXTRA:
+        sys.exit(f"STOP: could not find a dataset folder for {missing}. Add the dataset to the notebook "
+                 "(Input panel) or write its folder in steps/settings.py.")
+    items = [f"{k}={v}" for k, v in settings.PATHS.items()] + [f"train.epochs={settings.EPOCHS}"] \
+        + settings.EXTRA + list(more)
     return ["--set", *items]
 
 

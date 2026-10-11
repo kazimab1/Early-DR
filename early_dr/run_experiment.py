@@ -1,7 +1,7 @@
 """Command line: train -> calibrate on validation -> evaluate.
 
     python -m early_dr.run_experiment configs/arms/arm_A.yaml --seeds 42 43 44
-    python -m early_dr.run_experiment configs/arms/arm_A.yaml --stage evaluate --external
+    python -m early_dr.run_experiment configs/arms/arm_A.yaml --stage evaluate --external   # APTOS only
 """
 import argparse
 import os
@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--set", nargs="*", default=[], help="override, e.g. train.epochs=3")
     parser.add_argument("--stage", choices=["all", "train", "evaluate"], default="all")
     parser.add_argument("--external", action="store_true",
-                        help="also open IDRiD and APTOS (do this last, after model selection)")
+                        help="open ONLY the external sets (APTOS); do this last, after model selection")
     args = parser.parse_args()
 
     cfg = load_config(args.config, args.set)
