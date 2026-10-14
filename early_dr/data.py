@@ -105,7 +105,13 @@ def load_ddr(root):
 def load_eyepacs(root):
     """Kaggle EyePACS: trainLabels.csv with columns image, level.  Split later, by patient."""
     table = pd.read_csv(_find_file(root, "trainLabels.csv"))
-    images = index_images(root)
+    # Some copies (e.g. "Diabetic Retinopathy (resized)") hold the same images twice: plain and *_cropped.
+    # Use only the cropped folder: it also leaves out the near-black images (35,126 -> about 35,108).
+    cropped = [os.path.join(root, d) for d in sorted(os.listdir(root))
+               if "cropped" in d.lower() and os.path.isdir(os.path.join(root, d))]
+    images = {}
+    for folder in cropped or [root]:
+        images.update(index_images(folder))
     patients = [str(name).split("_")[0] for name in table["image"]]
     return pd.DataFrame(_rows("EyePACS", table["image"], table["level"], images, patients))
 

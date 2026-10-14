@@ -8,7 +8,8 @@
    * **DDR** - either the official `train.txt`/`valid.txt`/`test.txt` split files, or the Kaggle copy with a single
      `DR_grading.csv` (both work). If the CSV has no split column, a seeded 60/20/20 split is made once and frozen.
    * **EyePACS** - use a copy that is already unzipped and contains `trainLabels.csv`
-     (search Kaggle for "diabetic retinopathy resized"; a "resized" copy also makes step 1 much faster)
+     Recommended: **"Diabetic Retinopathy (resized)" by tanlikesmath** (`trainLabels.csv` + `resized_train_cropped/`;
+     the code uses the cropped folder automatically). Avoid the "Resized 2015 & 2019" copy: it mixes in APTOS images.
    * **APTOS 2019** (`train.csv` + `train_images/`)
 4. **Settings:** Accelerator **GPU T4 x2 or P100** (the code uses one GPU), **Internet ON**
    (needs a phone-verified Kaggle account; it downloads the ImageNet weights - if it cannot, training starts from
