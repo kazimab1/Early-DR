@@ -12,12 +12,12 @@ def _parent_of(pattern):
 
 
 # "auto" = find the dataset by its files. Or write the folder yourself, e.g. "/kaggle/input/my-ddr".
-DDR = "auto"        # looks for DR_grading/train.txt
+DDR = "auto"        # looks for train.txt (official split) or DR_grading.csv
 EYEPACS = "auto"    # looks for trainLabels.csv
 APTOS = "auto"      # looks for train.csv next to a train_images folder
 
 PATHS = {
-    "paths.ddr": _parent_of("train.txt") if DDR == "auto" else DDR,
+    "paths.ddr": (_parent_of("train.txt") or _parent_of("DR_grading.csv")) if DDR == "auto" else DDR,
     "paths.eyepacs": _parent_of("trainLabels.csv") if EYEPACS == "auto" else EYEPACS,
     "paths.aptos": _parent_of("train_images") if APTOS == "auto" else APTOS,
     "paths.work": "/kaggle/working",

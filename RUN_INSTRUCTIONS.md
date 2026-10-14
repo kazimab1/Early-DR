@@ -5,7 +5,8 @@
    (Kaggle unpacks the zip itself.)
 2. **New Notebook** -> upload `kaggle_notebook.ipynb` (it is also inside the zip, in the dataset).
 3. **Add data** (right-hand panel): `early-dr-code`, plus the three image datasets:
-   * **DDR** (folder `DR_grading` with `train.txt`, `valid.txt`, `test.txt`)
+   * **DDR** - either the official `train.txt`/`valid.txt`/`test.txt` split files, or the Kaggle copy with a single
+     `DR_grading.csv` (both work). If the CSV has no split column, a seeded 60/20/20 split is made once and frozen.
    * **EyePACS** - use a copy that is already unzipped and contains `trainLabels.csv`
      (search Kaggle for "diabetic retinopathy resized"; a "resized" copy also makes step 1 much faster)
    * **APTOS 2019** (`train.csv` + `train_images/`)

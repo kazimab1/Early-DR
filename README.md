@@ -59,7 +59,7 @@ Outputs (in `/kaggle/working`): `splits.csv`, `manifest.csv`, `processed_512/`, 
 `runs/<experiment>/seed<N>/{best.pt, train_info.json, calibration.json, results.json, preds_<source>.csv}`.
 
 ## Honest notes
-* Tested end to end only on small **synthetic** images (all arms, all four tasks, sampler/loss/augmentation options, AdaBN, saliency, summarise). It has **not** been run on the real datasets, so the file readers in `data.py` assume these layouts: DDR `DR_grading/{train,valid,test}.txt` (`name label`), EyePACS `trainLabels.csv` (`image,level`), IDRiD `*Training Labels*.csv` / `*Testing Labels*.csv`, APTOS `train.csv` (`id_code,diagnosis`). If a Kaggle copy differs, only the `load_*` functions need changing.
+* Tested end to end only on small **synthetic** images (all arms, all four tasks, sampler/loss/augmentation options, AdaBN, saliency, summarise). It has **not** been run on the real datasets, so the file readers in `data.py` assume these layouts: DDR `train/valid/test.txt` (`name label`) or a single `DR_grading.csv` (name + grade [+ split]), EyePACS `trainLabels.csv` (`image,level`), IDRiD `*Training Labels*.csv` / `*Testing Labels*.csv`, APTOS `train.csv` (`id_code,diagnosis`). If a Kaggle copy differs, only the `load_*` functions need changing.
 * The ViT/RETFound path and the DDR lesion-overlap check need files I could not test (RETFound checkpoint, lesion masks).
 * Saliency (Grad-CAM) supports the CNN backbone only.
 * The novelty claims in the plan are left to the literature search, as the plan says.

@@ -52,19 +52,54 @@ def _rows(source, stems, grades, images, patients=None):
     return rows
 
 
+def _pick(columns, names):
+    lowered = {c.lower().strip(): c for c in columns}
+    for name in names:
+        if name in lowered:
+            return lowered[name]
+    return None
+
+
 def load_ddr(root):
-    """DDR grading folder: train.txt / valid.txt / test.txt with lines 'name.jpg grade'.
-    Grade 5 means ungradable and is dropped (gradable images only)."""
+    """DDR gradable images, grades 0-4 (grade 5 = ungradable is dropped).
+
+    Two layouts are understood:
+      * official split files  train.txt / valid.txt / test.txt with lines 'name.jpg grade'
+      * one DR_grading.csv (the Kaggle copy): an image-name column, a grade column and, if present,
+        a split column. WITHOUT a split column a seeded 60/20/20 split is made once (and frozen), because
+        DDR has no patient IDs; the duplicate audit then checks for leakage.
+    """
     images = index_images(root)
-    rows = []
-    for split_file, split in [("train", "train"), ("valid", "val"), ("test", "test")]:
-        table = pd.read_csv(_find_file(root, f"{split_file}.txt"), sep=r"\s+", header=None,
-                            names=["name", "grade"])
-        table = table[table.grade <= 4]
-        part = pd.DataFrame(_rows("DDR", table.name, table.grade, images))
-        part["split"] = split
-        rows.append(part)
-    return pd.concat(rows, ignore_index=True)
+    try:
+        parts = []
+        for split_file, split in [("train", "train"), ("valid", "val"), ("test", "test")]:
+            table = pd.read_csv(_find_file(root, f"{split_file}.txt"), sep=r"\s+", header=None,
+                                names=["name", "grade"])
+            table = table[table.grade <= 4]
+            part = pd.DataFrame(_rows("DDR", table.name, table.grade, images))
+            part["split"] = split
+            parts.append(part)
+        return pd.concat(parts, ignore_index=True)
+    except FileNotFoundError:
+        pass
+
+    table = pd.read_csv(_find_file(root, "DR_grading.csv"))
+    name_col = _pick(table.columns, ["id_code", "image", "image_id", "img", "name", "filename", "file"]) \
+        or table.columns[0]
+    grade_col = _pick(table.columns, ["diagnosis", "level", "label", "grade", "dr_grade"]) or table.columns[1]
+    split_col = _pick(table.columns, ["split", "set", "subset", "partition", "folder"])
+    table = table[table[grade_col] <= 4].reset_index(drop=True)
+    out = pd.DataFrame(_rows("DDR", table[name_col], table[grade_col], images))
+    if split_col is not None and table[split_col].astype(str).str.lower().isin(
+            ["train", "valid", "val", "validation", "test"]).all():
+        names = {os.path.splitext(str(n))[0]: v for n, v in zip(table[name_col], table[split_col])}
+        mapping = {"train": "train", "valid": "val", "val": "val", "validation": "val", "test": "test"}
+        out["split"] = [mapping[str(names[i.replace("DDR_", "", 1)]).lower()] for i in out.image_id]
+    else:
+        print("[DDR] no official split found: making a seeded 60/20/20 split (frozen in splits.csv)")
+        draw = np.random.RandomState(2024).rand(len(out))
+        out["split"] = np.where(draw < 0.6, "train", np.where(draw < 0.8, "val", "test"))
+    return out
 
 
 def load_eyepacs(root):
