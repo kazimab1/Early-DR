@@ -62,13 +62,13 @@ def source_statistics(cfg, manifest, per_source=300, workers=4):
 
 
 def _average_hash(path):
-    img = cv2.imread(path, cv2.IMREAD_REDUCED_GRAYSCALE_8)
-    small = cv2.resize(img, (16, 16), interpolation=cv2.INTER_AREA)
+    img = cv2.imread(path, cv2.IMREAD_REDUCED_GRAYSCALE_4)
+    small = cv2.resize(img, (32, 32), interpolation=cv2.INTER_AREA)
     return (small > small.mean()).tobytes()
 
 
 def find_duplicates(cfg, manifest, workers=4):
-    """Images with the same 16x16 average hash. Duplicates ACROSS splits are leakage."""
+    """Images with the same 32x32 average hash (1024 bits). A hash match is a CANDIDATE: check a few by eye. Duplicates ACROSS splits are leakage."""
     paths = [processed_path(cfg, i) for i in manifest.image_id]
     with Pool(workers) as pool:
         hashes = pool.map(_average_hash, paths, chunksize=64)

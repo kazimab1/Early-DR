@@ -68,21 +68,34 @@ def train(cfg, manifest):
     for epoch in range(1, cfg.train.epochs + 1):
         started = time.time()
         model.train()
-        total, n_batches = 0.0, 0
+        total, n_batches, skipped = 0.0, 0, 0
         for images, labels, _ in train_loader:
             images, labels = images.to(device), labels.to(device)
             with torch.autocast(device_type=device.type, enabled=cfg.train.amp and device.type == "cuda"):
                 loss = loss_fn(model(images).float(), labels)
             optimiser.zero_grad()
+            if not torch.isfinite(loss):                 # skip a bad batch instead of poisoning the weights
+                skipped += 1
+                continue
             scaler.scale(loss).backward()
+            scaler.unscale_(optimiser)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
             scaler.step(optimiser)
             scaler.update()
             total, n_batches = total + loss.item(), n_batches + 1
         scheduler.step()
 
         # choose the epoch on VALIDATION data only
-        val_prob = softmax(predict_logits(model, val_loader, device, cfg.train.amp))
-        score = selection_score(val_prob, val_df.grade.values, task)
+        logits = predict_logits(model, val_loader, device, cfg.train.amp)
+        if not np.isfinite(logits).all():                # half precision overflowed: redo in full precision
+            logits = predict_logits(model, val_loader, device, amp=False)
+        if np.isfinite(logits).all():
+            score = selection_score(softmax(logits), val_df.grade.values, task)
+        else:
+            print("  WARNING: the model outputs are not finite (training diverged)")
+            score = -1.0
+        if skipped:
+            print(f"  WARNING: {skipped} batches with a non-finite loss were skipped")
         history.append({"epoch": epoch, "train_loss": total / max(n_batches, 1), "val_score": score})
         print(f"  epoch {epoch}: train loss {total / max(n_batches, 1):.4f}, validation score {score:.4f}, "
               f"{time.time() - started:.0f} s")
@@ -90,6 +103,9 @@ def train(cfg, manifest):
             best = score
             torch.save(model.state_dict(), os.path.join(out, "best.pt"))
 
+    if best < 0:
+        raise RuntimeError("Training diverged: no epoch had a finite validation score. "
+                           "Try a lower train.lr or train.amp=false.")
     info = {"sampler_prior": sampler_prior.tolist(),
             "loss_weights": None if loss_weights is None else list(map(float, loss_weights)),
             "training_prior": training_prior(sampler_prior, loss_weights).tolist(),

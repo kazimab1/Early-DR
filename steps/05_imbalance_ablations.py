@@ -8,15 +8,23 @@ import os
 
 from common import REPO, WORK, config, overrides, run
 
+failed = []
 for path in sorted(glob.glob(os.path.join(REPO, "configs", "imbalance", "*.yaml"))):
-    run("run_experiment", config(f"imbalance/{os.path.basename(path)}"), *overrides(),
-        "--stage", "train", "--seeds", "42")
+    try:
+        run("run_experiment", config(f"imbalance/{os.path.basename(path)}"), *overrides(),
+            "--stage", "train", "--seeds", "42")
+    except Exception as err:                         # one failed run must not stop the others
+        print("FAILED:", os.path.basename(path), err)
+        failed.append(os.path.basename(path))
 
 print("\nBest validation score per run (higher is better):")
 names = [os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(REPO, "configs", "imbalance", "*.yaml"))]
 rows = []
 for name in names:
     info = os.path.join(WORK, "runs", name, "seed42", "train_info.json")
-    rows.append((json.load(open(info))["best_val_score"], name))
+    if os.path.exists(info):
+        rows.append((json.load(open(info))["best_val_score"], name))
 for score, name in sorted(rows, reverse=True):
     print(f"  {score:.4f}  {name}")
+if failed:
+    print("\nThese runs failed and are missing from the table:", failed)
