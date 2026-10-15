@@ -62,3 +62,14 @@ arm C's about 1.4x. Multiply by epochs x seeds to correct the table.
 See the table in the notebook and in `README.md`. Fill in the declaration cell (it stamps a date on
 `DECLARED_ANALYSIS.md`) only after step 5, before step 6. Results are in `/kaggle/working/runs/...` and
 `/kaggle/working/figures/`.
+
+## 6. If the GPU quota or the session runs out
+* **Do not rely on a half-finished "Save & Run All".** I cannot promise Kaggle keeps outputs of a run that was stopped.
+  Work in chunks that each finish inside your quota (e.g. steps 1-3, then arm A, then arm B ...; set `ARMS` and
+  `SEEDS` in `steps/settings.py`) and **Save Version -> Save & Run All** for each chunk, so each one is saved whole.
+* **To continue:** open a new notebook, add (1) the code dataset, (2) the image datasets and (3) the previous
+  notebook's output as input, then run the **Resume** cell. It restores `splits.csv`, `processed_512/` and
+  `runs/`.
+* Step 4 skips any arm/seed that is already trained and calibrated, so just run it again. A run that was
+  interrupted part-way restarts from epoch 1 (no mid-run checkpoint). Use `--force` to retrain a finished one.
+* Step 1 also skips images that are already processed. Keep `splits.csv`: it is what freezes the splits.
