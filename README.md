@@ -69,3 +69,6 @@ Written to `<work>/figures/`: `01_class_distribution`, `02_training_<run>`, `03_
 `05_flagged_by_grade_<run>`, `06_confusion_<run>` (five-grade runs), `07_comparison_sensitivity` / `_auroc`
 (arms side by side, per source, 95% CI), `08_validation_scores`. Plus the Grad-CAM pictures from `saliency.py`.
 Figures are drawn from the saved `results.json` / `preds_*.csv`; no model is loaded.
+
+## Checks for results that look too good
+`steps/12_check_duplicates.py` (duplicates, per-grade AUROC; uses saved predictions) and `steps/13_shortcut_check.py` (can image size, file size, colour or sharpness predict early DR alone?).
