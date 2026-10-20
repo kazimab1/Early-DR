@@ -38,6 +38,9 @@ def early_metrics(preds, threshold):
     g = sub.grade.values
     return {"n": len(sub), "specificity": (~flagged)[g == 0].mean(),
             "sens_grade1": flagged[g == 1].mean() if (g == 1).any() else np.nan,
+            # how well is each grade separated from No DR? "early" is mostly grade 2 in DDR, which is easy
+            "auroc_g1_vs_0": M.auroc((g[g <= 1] > 0).astype(int), score[g <= 1]),
+            "auroc_g2_vs_0": M.auroc((g[g != 1] > 0).astype(int), score[g != 1]),
             "sens_grade2": flagged[g == 2].mean() if (g == 2).any() else np.nan,
             "sens_early": flagged[y == 1].mean(), "pr_auc": M.pr_auc(y, score), "auroc": M.auroc(y, score)}
 
