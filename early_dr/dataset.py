@@ -30,7 +30,14 @@ def colour_normalise(img):
 
 def build_transform(kind, size):
     """mild = small flips/rotation/colour jitter.  strong = rotations, crop+zoom, blur, noise."""
-    if kind == "strong":
+    if kind == "geo":                                  # only the geometric half of "strong" (used for diagnosis)
+        steps = [T.RandomHorizontalFlip(), T.RandomVerticalFlip(), T.RandomRotation(180),
+                 T.RandomResizedCrop(size, scale=(0.7, 1.0)), T.ToTensor(), T.Normalize(MEAN, STD)]
+    elif kind == "photo":                              # only the colour / blur / noise half of "strong"
+        steps = [T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1),
+                 T.RandomApply([T.GaussianBlur(5, sigma=(0.1, 1.5))], p=0.3),
+                 T.ToTensor(), AddNoise(), T.Normalize(MEAN, STD)]
+    elif kind == "strong":
         steps = [T.RandomHorizontalFlip(), T.RandomVerticalFlip(), T.RandomRotation(180),
                  T.RandomResizedCrop(size, scale=(0.7, 1.0)),
                  T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1),

@@ -72,3 +72,5 @@ Figures are drawn from the saved `results.json` / `preds_*.csv`; no model is loa
 
 ## Checks for results that look too good
 `steps/12_check_duplicates.py` (duplicates, per-grade AUROC; uses saved predictions) and `steps/13_shortcut_check.py` (can image size, file size, colour or sharpness predict early DR alone?).
+
+`steps/14_diagnose_strong_aug.py` diagnoses why strong augmentation failed; `steps/run_all_checks.py` runs steps 12-14.
