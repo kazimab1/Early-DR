@@ -13,10 +13,10 @@ WORK = dict(i.split('=', 1) for i in settings.EXTRA if i.startswith('paths.work=
 def overrides(*more):
     """--set arguments: dataset paths, any test overrides, then step-specific ones."""
     missing = [k for k, v in settings.PATHS.items() if not v]
-    if missing and not settings.EXTRA:
-        sys.exit(f"STOP: could not find a dataset folder for {missing}. Add the dataset to the notebook "
-                 "(Input panel) or write its folder in steps/settings.py.")
-    items = [f"{k}={v}" for k, v in settings.PATHS.items()] + [f"train.epochs={settings.EPOCHS}"] \
+    if missing:                                      # only steps 1-2 and 13 need the image folders
+        print(f"NOTE: no dataset folder found for {missing}. Fine for steps that use saved files only; "
+              "add the dataset (Input panel) or edit steps/settings.py for steps 1, 2 and 13.")
+    items = [f"{k}={v}" for k, v in settings.PATHS.items() if v] + [f"train.epochs={settings.EPOCHS}"] \
         + settings.EXTRA + list(more)
     return ["--set", *items]
 
