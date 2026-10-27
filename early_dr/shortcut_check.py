@@ -40,6 +40,20 @@ def auc(model, table, columns):
     return roc_auc_score(y, model.predict_proba(table[columns])[:, 1]) if y.nunique() == 2 else np.nan
 
 
+FEATURE_SETS = {
+    "image size only (width, height, aspect)": ["width", "height", "aspect"],          # a camera / hospital proxy
+    "file size only": ["file_kb"],                                                      # also grows with lesion detail
+    "colour and brightness only": ["mean_b", "mean_g", "mean_r", "brightness"],
+    "sharpness and field of view only": ["sharpness", "retina_fraction"],
+    "all properties": ["width", "height", "aspect", "file_kb", "mean_b", "mean_g", "mean_r", "brightness",
+                       "sharpness", "retina_fraction"],
+}
+
+
+def fit(train, columns):
+    return HistGradientBoostingClassifier(max_iter=200, random_state=0).fit(train[columns], (train.grade > 0).astype(int))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--work", default="/kaggle/working")
@@ -47,33 +61,40 @@ def main():
     args = parser.parse_args()
     manifest = pd.read_csv(os.path.join(args.work, "manifest.csv"))
     manifest = manifest[manifest.grade <= 2].reset_index(drop=True)          # early DR vs No DR only
-
-    class Cfg:                                                              # processed_path needs a config-like object
-        class paths: work = args.work
-        class data: prep_size = 512
-    folders = [d for d in os.listdir(args.work) if d.startswith("processed_")]
-    Cfg.data.prep_size = int(folders[0].split("_")[1])
-    jobs = [(r.path, processed_path(Cfg, r.image_id)) for r in manifest.itertuples()]
-    with Pool(args.workers) as pool:
-        table = pd.concat([manifest, pd.DataFrame(pool.map(features, jobs, chunksize=64))], axis=1)
-    columns = ["width", "height", "aspect", "file_kb", "mean_b", "mean_g", "mean_r", "brightness", "sharpness", "retina_fraction"]
+    cache = os.path.join(args.work, "audit", "image_features.csv")
+    os.makedirs(os.path.dirname(cache), exist_ok=True)
+    if os.path.exists(cache):                                               # reading the originals is slow: do it once
+        table = manifest.merge(pd.read_csv(cache), on="image_id", how="left")
+        print("image features loaded from", cache)
+    else:
+        class Cfg:                                                          # processed_path needs a config-like object
+            class paths: work = args.work
+            class data: prep_size = 512
+        Cfg.data.prep_size = int([d for d in os.listdir(args.work) if d.startswith("processed_")][0].split("_")[1])
+        jobs = [(r.path, processed_path(Cfg, r.image_id)) for r in manifest.itertuples()]
+        with Pool(args.workers) as pool:
+            feats = pd.DataFrame(pool.map(features, jobs, chunksize=64))
+        feats.insert(0, "image_id", manifest.image_id.values)
+        feats.to_csv(cache, index=False)
+        table = manifest.merge(feats, on="image_id", how="left")
 
     rows = []
-    for source in ["DDR", "EyePACS"]:                                        # train on one dataset's train split
-        train = table[(table.source == source) & (table.split == "train")]
-        model = HistGradientBoostingClassifier(max_iter=200, random_state=0).fit(train[columns], (train.grade > 0).astype(int))
-        for name, part in [(f"{source} test", table[(table.source == source) & (table.split == "test")]),
-                           ("EyePACS test", table[(table.source == "EyePACS") & (table.split == "test")]),
-                           ("APTOS", table[table.source == "APTOS"])]:
-            if len(part):
-                rows.append({"trained on": f"{source} train", "tested on": name, "AUROC": round(auc(model, part, columns), 3)})
-    aptos = table[table.source == "APTOS"].sample(frac=1, random_state=0)   # APTOS alone: half to train, half to test
+    aptos = table[table.source == "APTOS"].sample(frac=1, random_state=0)
     half = len(aptos) // 2
-    model = HistGradientBoostingClassifier(max_iter=200, random_state=0).fit(aptos.iloc[:half][columns], (aptos.iloc[:half].grade > 0).astype(int))
-    rows.append({"trained on": "APTOS (half)", "tested on": "APTOS (other half)", "AUROC": round(auc(model, aptos.iloc[half:], columns), 3)})
-    result = pd.DataFrame(rows).drop_duplicates()
-    print("\nAUROC for early DR vs No DR from simple image properties only (no retina content)\n")
+    scenarios = [("DDR train to DDR test", table[(table.source == "DDR") & (table.split == "train")], table[(table.source == "DDR") & (table.split == "test")]),
+                 ("DDR train to APTOS", table[(table.source == "DDR") & (table.split == "train")], aptos),
+                 ("EyePACS train to EyePACS test", table[(table.source == "EyePACS") & (table.split == "train")], table[(table.source == "EyePACS") & (table.split == "test")]),
+                 ("APTOS half to other half", aptos.iloc[:half], aptos.iloc[half:])]
+    for feature_set, columns in FEATURE_SETS.items():
+        row = {"image properties used": feature_set}
+        for name, train, test in scenarios:
+            row[name] = round(auc(fit(train, columns), test, columns), 3)
+        rows.append(row)
+    result = pd.DataFrame(rows)
+    print("\nAUROC for early DR vs No DR from image properties only (no retina content)\n")
     print(result.to_string(index=False))
+    print("\nImage size is the cleanest camera proxy. File size and sharpness also rise with lesion detail, "
+          "so a high value there is not proof of a camera artefact.")
     result.to_csv(os.path.join(args.work, "audit", "shortcut_check.csv"), index=False)
 
 
