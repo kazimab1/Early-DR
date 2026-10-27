@@ -1,0 +1,4 @@
+base: baseline.yaml
+# Geometric augmentation only (flips, 180-degree rotation, crop and zoom), on EVERY class.
+# Strong augmentation failed because its noise/blur part breaks BatchNorm; this version leaves that part out.
+imbalance: {aug: geo, aug_scope: all}

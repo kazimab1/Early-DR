@@ -1,0 +1,4 @@
+base: baseline.yaml
+# Same geometric augmentation, but only on the minority classes (every class except the largest).
+# Compared with aug_geo_all this tests whether augmentation applied to some classes becomes a cue for the label.
+imbalance: {aug: geo, aug_scope: minority}
