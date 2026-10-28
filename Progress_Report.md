@@ -10,16 +10,19 @@ This project asks whether models trained on merged diabetic retinopathy (DR) dat
 
 # 2. Problem and gap
 
+- Public medical-image datasets are often pooled to get more training data; here DDR, EyePACS and APTOS. A 2025 review notes that multi-dataset training can mask poor external generalization.
+- In other fields, models have learned hospital or scanner site, or dataset identity, instead of disease (Torralba and Efros 2011; Geirhos et al. 2020; Zech et al. 2018; DeGrave et al. 2021).
 - Early DR (grades 1-2) is symptomless and under-studied; much well-known work targets referable DR (moderate or worse).
-- Public datasets are often pooled; a 2025 review notes that multi-dataset training can mask poor external generalization.
-- In three quick searches I found no study that tests whether a merged model learns the disease or the source, or that reports early-DR sensitivity at a pre-set specificity. A systematic literature search is still to do, so this is not a novelty claim.
+- In three quick searches I found no study that tests whether a merged early-DR model learns the disease or the source, which image properties carry the source, or that reports early-DR sensitivity at a pre-set specificity. A systematic literature search is still to do, so this is not a novelty claim.
 
 # 3. Research questions
 
-1. **Main:** when datasets are merged for early-DR detection, does the model learn the disease or the source?
-2. **RQ1:** does adding EyePACS to DDR improve early-DR sensitivity at a fixed specificity on unseen sources?
-3. **RQ2:** does a threshold frozen on validation survive a change of source?
-4. **RQ3:** do external benchmarks carry capture cues, such as image size, that a model could use instead of disease?
+Dataset merging is treated in general, with early DR as the case study.
+
+1. **Main:** when medical-image datasets are merged, does a model learn the condition or the source?
+2. **RQ1 (the merge):** does adding a second source (EyePACS to DDR) improve early-DR sensitivity at a fixed specificity on unseen sources?
+3. **RQ2 (the threshold):** does a threshold frozen on validation survive a change of source?
+4. **RQ3 (image properties):** which properties differ between sources (size, file size and quality, brightness, colour, sharpness; camera proxies, since the camera model is not recorded) and how do they affect what a merged model learns?
 
 # 4. Method
 
@@ -68,7 +71,7 @@ This project asks whether models trained on merged diabetic retinopathy (DR) dat
 ## 5.3 Diagnostic checks
 
 - **Duplicates.** 834 candidate groups; 4% of DDR test images had a near-duplicate in train. A group-aware split removed it and test results did not change beyond seed noise.
-- **Image properties.** Image size alone predicts early DR at AUROC 0.96 in APTOS, 0.58 in DDR and 0.53 in EyePACS, so APTOS is camera-confounded and EyePACS is the cleanest benchmark. Within groups of APTOS images of the same size the models still score AUROC 0.984-0.989 (post-hoc), so size alone does not explain the APTOS score.
+- **Image properties (first step of RQ3).** Image size alone predicts early DR at AUROC 0.96 in APTOS, 0.58 in DDR and 0.53 in EyePACS, so APTOS is camera-confounded and EyePACS is the cleanest benchmark. Within groups of APTOS images of the same size the models still score AUROC 0.984-0.989 (post-hoc), so size alone does not explain the APTOS score.
 - **Strong augmentation.** The failure was a BatchNorm train/eval mismatch from the noise and blur part. Geometric augmentation on all classes scores 0.977; on minority classes only it scores 0.834, because it leaks the label.
 
 # 6. Limitations
@@ -84,6 +87,7 @@ This project asks whether models trained on merged diabetic retinopathy (DR) dat
 | Task | Status |
 |---|---|
 | Own-source operating points (post-hoc) | To do |
+| Property analysis for RQ3: source prediction from properties, scores within brightness, quality and sharpness strata, normalisation tests | To do (size strata done) |
 | Matched-subset check on APTOS (other capture cues) | To do |
 | Use geometric augmentation on all classes; keep minority-only as the cue control | To do |
 | Systematic literature search | To do |
@@ -91,4 +95,4 @@ This project asks whether models trained on merged diabetic retinopathy (DR) dat
 
 # References
 
-Key sources: International Diabetes Federation, *IDF Diabetes Atlas*, 11th ed., 2025. Gulshan, V., et al., *JAMA*, 2016. Li, T., et al., DDR dataset, *Information Sciences*, 2019. Kaggle EyePACS (2015) and APTOS 2019. Guo, C., et al., On calibration of modern neural networks, ICML, 2017. Tan, M., & Le, Q., EfficientNet, ICML, 2019. *From Retinal Pixels to Patients: Evolution of Deep Learning Research in Diabetic Retinopathy Screening*, arXiv:2511.11065, 2025.
+Key sources: International Diabetes Federation, *IDF Diabetes Atlas*, 11th ed., 2025. Gulshan, V., et al., *JAMA*, 2016. Li, T., et al., DDR dataset, *Information Sciences*, 2019. Kaggle EyePACS (2015) and APTOS 2019. Guo, C., et al., On calibration of modern neural networks, ICML, 2017. Tan, M., & Le, Q., EfficientNet, ICML, 2019. Torralba, A., & Efros, A., Unbiased look at dataset bias, CVPR, 2011. Geirhos, R., et al., Shortcut learning in deep neural networks, *Nature Machine Intelligence*, 2020. Zech, J. R., et al., *PLOS Medicine*, 2018. DeGrave, A. J., et al., *Nature Machine Intelligence*, 2021. *From Retinal Pixels to Patients: Evolution of Deep Learning Research in Diabetic Retinopathy Screening*, arXiv:2511.11065, 2025.
