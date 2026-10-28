@@ -13,10 +13,18 @@ from PIL import Image
 from sklearn.metrics import roc_auc_score
 
 
-def image_sizes(table):
+def image_sizes(table, search_root=None):
     """Width and height of every original image (cheap: only the file header is read)."""
+    found = {}
+    if search_root:                       # the manifest paths are from the original run: find the files again by name
+        want = {os.path.basename(p) for p in table.path}
+        for root, _, names in os.walk(search_root):
+            for n in names:
+                if n in want:
+                    found[n] = os.path.join(root, n)
     sizes = []
     for path in table.path:
+        path = path if os.path.exists(path) else found.get(os.path.basename(path), path)
         try:
             with Image.open(path) as im:
                 sizes.append(im.size)
@@ -25,7 +33,7 @@ def image_sizes(table):
     return pd.DataFrame({"width": [s[0] for s in sizes], "height": [s[1] for s in sizes]}, index=table.index)
 
 
-def aptos_table(work, sizes_cache=None):
+def aptos_table(work, sizes_cache=None, search_root=None):
     """APTOS early-DR subset (grades 0-2) with width and height."""
     manifest = pd.read_csv(os.path.join(work, "manifest.csv"))
     aptos = manifest[(manifest.source == "APTOS") & (manifest.grade <= 2)].reset_index(drop=True)
@@ -36,7 +44,11 @@ def aptos_table(work, sizes_cache=None):
             print("image sizes taken from", sizes_cache)
             return aptos
     print("reading image sizes from the original APTOS files")
-    return pd.concat([aptos, image_sizes(aptos)], axis=1)
+    aptos = pd.concat([aptos, image_sizes(aptos, search_root)], axis=1)
+    if (aptos.width == 0).any():
+        raise SystemExit(f"STOP: could not read the size of {(aptos.width == 0).sum()} APTOS images. Add the APTOS dataset as an input, "
+                         "or add the output of image_property_check (it has audit/image_features.csv).")
+    return aptos
 
 
 def pooled_auroc(y, score, group):
@@ -72,13 +84,15 @@ def bootstrap_pooled(y, score, group, n=300, seed=0):
     return tuple(np.nanpercentile(values, [2.5, 97.5]))
 
 
-def analyse(work, arms, sizes_cache=None, min_images=30, min_each=8):
-    aptos = aptos_table(work, sizes_cache)
+def analyse(work, arms, sizes_cache=None, min_images=30, min_each=8, search_root=None):
+    aptos = aptos_table(work, sizes_cache, search_root)
     key, stats = usable_groups(aptos, min_images, min_each)
     aptos["size"] = key
     keep = aptos["size"].isin(stats.index[stats.usable])
     print(f"{len(aptos)} APTOS images (grades 0-2): {len(stats)} image sizes, {int(stats.usable.sum())} usable groups "
           f"covering {int(keep.sum())} images ({keep.mean():.0%})")
+    if stats.usable.sum() < 2:
+        raise SystemExit("STOP: fewer than 2 usable size groups, so the check cannot say anything (is every image size identical or unreadable?).")
     rows = []
     for arm in arms:
         per_seed = []
