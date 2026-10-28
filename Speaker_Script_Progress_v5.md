@@ -14,3 +14,6 @@
 | 10 | Limits | 1:10 | "Threshold does not transfer; capture artifacts in DDR and APTOS; random DDR split; intervals and five seeds still to do; the new analyses are post-hoc." |
 | 11 | Conclusions, next steps | 1:20 | "Three conclusions and six next steps, starting with five seeds on the group split." |
 | 12 | Thanks | 0:05 | "Thank you. Questions?" |
+
+
+**New slide "The Three Data Arms" (after Methods; later slide numbers shift by one), about 0:20:** "A is DDR only, the clean baseline. B is DDR plus all EyePACS grades, with a sampler that makes each source equally likely within every grade. C is the old merge: DDR plus only EyePACS grades 1, 3 and 4, so EyePACS supplies mostly disease images and the dataset name predicts disease. It is a deliberately flawed control. Everything else is identical."

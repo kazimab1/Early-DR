@@ -30,3 +30,6 @@ Likely questions
 - "Is the arm C result real if sensitivity is 0.997?" Yes: specificity is 0.013, so it simply flags almost everything.
 - "Why not just retune the threshold per dataset?" That is a separate, own-source analysis and is on the next-steps list; it answers a different question from transfer.
 - "Is APTOS 0.994 robustness?" Not claimed: the label is tied to image properties there.
+
+
+**New slide "The Three Data Arms" (after Methods; later slide numbers shift by one), about 0:20:** "A is DDR only, the clean baseline. B is DDR plus all EyePACS grades, with a sampler that makes each source equally likely within every grade. C is the old merge: DDR plus only EyePACS grades 1, 3 and 4, so EyePACS supplies mostly disease images and the dataset name predicts disease. It is a deliberately flawed control. Everything else is identical."

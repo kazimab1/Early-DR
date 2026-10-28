@@ -17,3 +17,6 @@ Slide 8 has empty cells. Fill them from the five-seed evaluation (mean and 95% i
 | 11 | What these results do not show | 0:40 | "The frozen threshold does not transfer, APTOS may carry other capture cues, same-patient leakage in DDR is untestable, and per-grade and size-strata results are post-hoc." |
 | 12 | Conclusions and next steps | 0:30 | "The old merge teaches the source, source-balancing helps off-domain, and EyePACS is the clean benchmark. Next: own-source operating points, a matched-subset check, the literature search and the thesis." |
 | 13 | Thank you | 0:05 | "Thank you." |
+
+
+**New slide "The Three Data Arms" (after Methods; later slide numbers shift by one), about 0:20:** "A is DDR only, the clean baseline. B is DDR plus all EyePACS grades, with a sampler that makes each source equally likely within every grade. C is the old merge: DDR plus only EyePACS grades 1, 3 and 4, so EyePACS supplies mostly disease images and the dataset name predicts disease. It is a deliberately flawed control. Everything else is identical."
