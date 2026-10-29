@@ -6,7 +6,7 @@ author: "Advisor: Navid Amini, PhD, Department of Computer Science, Cal State LA
 
 # 1. Summary
 
-This project asks whether models trained on merged diabetic retinopathy (DR) datasets learn the disease or the dataset they came from, for early DR (grades 1-2 versus No DR) at a fixed specificity. The full pipeline runs on Kaggle with three public datasets (DDR, EyePACS, APTOS). Results so far show that a naive merge teaches the source, that a source-balanced merge helps on unseen patients, and that in-domain scores are optimistic. Group-split results are over three seeds; ECE, Brier and patient-level intervals are still to report.
+This project asks whether models trained on merged diabetic retinopathy (DR) datasets learn the disease or the dataset they came from, for early DR (grades 1-2 versus No DR) at a fixed specificity. The full pipeline runs on Kaggle with three public datasets (DDR, EyePACS, APTOS). Results so far show that a naive merge teaches the source, that a source-balanced merge helps on unseen patients, and that in-domain scores are optimistic. Group-split results are over three seeds, with 95% intervals, ECE and Brier.
 
 # 2. Problem and gap
 
@@ -58,17 +58,25 @@ Dataset merging is treated in general, with early DR as the case study.
 | Per grade | Grade 2 is easy (AUROC 0.98-0.999); grade 1 is harder off-domain (EyePACS 0.61 A, 0.77 B, 0.63 C) |
 | Imbalance methods | No method beat plain cross-entropy beyond seed noise (best 0.9772 vs baseline 0.9761) |
 
-**Group-split results** (mean ± sd over seeds 42, 43, 44; group-aware DDR split; EyePACS and APTOS unchanged):
+**Group-split results** (mean over seeds 42, 43, 44, with 95% patient-level bootstrap intervals averaged over seeds; group-aware DDR split; EyePACS and APTOS unchanged):
 
 | Metric | A: DDR only | B: source-balanced | C: old merge |
 |---|---|---|---|
-| DDR: sensitivity at frozen threshold | 0.941 ± 0.009 | 0.925 ± 0.004 | 0.938 ± 0.005 |
-| EyePACS: AUROC | 0.780 ± 0.006 | 0.884 ± 0.002 | 0.717 ± 0.011 |
-| EyePACS: specificity at frozen threshold | 0.438 ± 0.019 | 0.898 ± 0.004 | 0.008 ± 0.001 |
-| APTOS: AUROC | 0.994 ± 0.005 | 0.994 ± 0.001 | 0.990 ± 0.003 |
-| EyePACS: PR-AUC (early vs none) | 0.569 ± 0.028 | 0.800 ± 0.002 | 0.465 ± 0.019 |
+| DDR: sensitivity at frozen threshold | 0.941 (0.926-0.955) | 0.925 (0.909-0.941) | 0.938 (0.923-0.953) |
+| EyePACS: AUROC | 0.780 (0.762-0.799) | 0.884 (0.870-0.897) | 0.717 (0.698-0.738) |
+| EyePACS: specificity at frozen threshold | 0.438 | 0.898 | 0.008 |
+| APTOS: AUROC | 0.994 (0.991-0.996) | 0.994 (0.991-0.996) | 0.990 (0.988-0.993) |
+| EyePACS: ECE / Brier | 0.326 / 0.300 | 0.056 / 0.091 | 0.717 / 0.707 |
+| APTOS: ECE / Brier | 0.219 / 0.151 | 0.082 / 0.046 | 0.313 / 0.246 |
+| DDR: ECE / Brier | 0.017 / 0.052 | 0.027 / 0.051 | 0.017 / 0.053 |
 
-Compared with the same seeds trained on the random DDR split, AUROC changed by at most 0.003 on DDR and APTOS, and rose on EyePACS by 0.019 (A), 0.007 (B) and 0.004 (C). Arm C's EyePACS AUROC dropped 0.040 for seed 42 but rose 0.027 and 0.024 for seeds 43 and 44, so the seed-42 drop was an outlier. ECE, Brier and patient-level bootstrap intervals are not yet computed.
+ECE and Brier measure any DR vs No DR on all grades, after temperature scaling and prior-shift correction (lower is better); the intervals describe image-sampling noise, while the AUROC spread across seeds is small (sd 0.001 to 0.011).
+
+- **EyePACS:** the AUROC intervals of the three arms do not overlap, and arm B is clearly best (0.884). Arm C's Brier score of 0.707 is worse than predicting the same probability for every image (about 0.25), because it flags nearly everything.
+- **Calibration does not transfer either:** ECE is small on DDR (0.017 to 0.027) but 0.326 (A) and 0.717 (C) on EyePACS; arm B stays at 0.056.
+- **DDR:** all arms overlap (AUROC 0.976 to 0.980), so adding EyePACS neither helps nor hurts there.
+- **Group vs random split:** the intervals overlap for every arm and source, consistent with the earlier conclusion that near-duplicate leakage does not explain the DDR scores.
+- **Own-test sets:** arm C's in-domain AUROC on its merged test set is 0.981 against 0.929 for arm B, but these test sets differ by arm, so they are not comparable.
 
 ## 5.3 Diagnostic checks
 
