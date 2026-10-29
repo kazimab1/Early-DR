@@ -6,7 +6,7 @@ author: "Advisor: Navid Amini, PhD, Department of Computer Science, Cal State LA
 
 # 1. Summary
 
-This project asks whether models trained on merged diabetic retinopathy (DR) datasets learn the disease or the dataset they came from, for early DR (grades 1-2 versus No DR) at a fixed specificity. The full pipeline runs on Kaggle with three public datasets (DDR, EyePACS, APTOS). Results so far show that a naive merge teaches the source, that a source-balanced merge helps on unseen patients, and that in-domain scores are optimistic. Items marked **[FILL]** depend on the five-seed run and must be completed before submitting.
+This project asks whether models trained on merged diabetic retinopathy (DR) datasets learn the disease or the dataset they came from, for early DR (grades 1-2 versus No DR) at a fixed specificity. The full pipeline runs on Kaggle with three public datasets (DDR, EyePACS, APTOS). Results so far show that a naive merge teaches the source, that a source-balanced merge helps on unseen patients, and that in-domain scores are optimistic. Group-split results are over three seeds; ECE, Brier and patient-level intervals are still to report.
 
 # 2. Problem and gap
 
@@ -43,7 +43,7 @@ Dataset merging is treated in general, with early DR as the case study.
 ## 5.1 Completed
 
 - Data audit and Kaggle pipeline (prepare, train, calibrate, evaluate, plot).
-- Arms A, B and C: original run with three seeds; group-split run with five seeds **[FILL: confirm completed]**.
+- Arms A, B and C: original run and group-split run, three seeds each (42, 43, 44), evaluated.
 - Internal (DDR, held-out EyePACS patients) and external (APTOS) evaluation.
 - Fourteen imbalance runs (sampler, loss, augmentation) and three extensions.
 - Four diagnostic checks (Section 5.3).
@@ -58,19 +58,21 @@ Dataset merging is treated in general, with early DR as the case study.
 | Per grade | Grade 2 is easy (AUROC 0.98-0.999); grade 1 is harder off-domain (EyePACS 0.61 A, 0.77 B, 0.63 C) |
 | Imbalance methods | No method beat plain cross-entropy beyond seed noise (best 0.9772 vs baseline 0.9761) |
 
-**Five-seed results** (mean and 95% patient-level bootstrap interval, group-split models) **[FILL from the evaluation output]**:
+**Group-split results** (mean ± sd over seeds 42, 43, 44; group-aware DDR split; EyePACS and APTOS unchanged):
 
 | Metric | A: DDR only | B: source-balanced | C: old merge |
 |---|---|---|---|
-| DDR: sensitivity at specificity 0.90 | [  ] | [  ] | [  ] |
-| EyePACS: AUROC | [  ] | [  ] | [  ] |
-| EyePACS: specificity at frozen threshold | [  ] | [  ] | [  ] |
-| APTOS: AUROC | [  ] | [  ] | [  ] |
-| EyePACS: ECE and Brier | [  ] | [  ] | [  ] |
+| DDR: sensitivity at frozen threshold | 0.941 ± 0.009 | 0.925 ± 0.004 | 0.938 ± 0.005 |
+| EyePACS: AUROC | 0.780 ± 0.006 | 0.884 ± 0.002 | 0.717 ± 0.011 |
+| EyePACS: specificity at frozen threshold | 0.438 ± 0.019 | 0.898 ± 0.004 | 0.008 ± 0.001 |
+| APTOS: AUROC | 0.994 ± 0.005 | 0.994 ± 0.001 | 0.990 ± 0.003 |
+| EyePACS: PR-AUC (early vs none) | 0.569 ± 0.028 | 0.800 ± 0.002 | 0.465 ± 0.019 |
+
+Compared with the same seeds trained on the random DDR split, AUROC changed by at most 0.003 on DDR and APTOS, and rose on EyePACS by 0.019 (A), 0.007 (B) and 0.004 (C). Arm C's EyePACS AUROC dropped 0.040 for seed 42 but rose 0.027 and 0.024 for seeds 43 and 44, so the seed-42 drop was an outlier. ECE, Brier and patient-level bootstrap intervals are not yet computed.
 
 ## 5.3 Diagnostic checks
 
-- **Duplicates.** 834 candidate groups; 4% of DDR test images had a near-duplicate in train. A group-aware split removed it and test results did not change beyond seed noise.
+- **Duplicates.** 834 candidate groups; 4% of DDR test images had a near-duplicate in train. A group-aware split removed it; over three seeds AUROC changed by at most 0.003 on DDR and APTOS.
 - **Image properties (first step of RQ3).** Image size alone predicts early DR at AUROC 0.96 in APTOS, 0.58 in DDR and 0.53 in EyePACS, so APTOS is camera-confounded and EyePACS is the cleanest benchmark. Within groups of APTOS images of the same size the models still score AUROC 0.984-0.989 (post-hoc), so size alone does not explain the APTOS score.
 - **Strong augmentation.** The failure was a BatchNorm train/eval mismatch from the noise and blur part. Geometric augmentation on all classes scores 0.977; on minority classes only it scores 0.834, because it leaks the label.
 
