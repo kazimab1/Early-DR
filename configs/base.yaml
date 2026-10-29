@@ -11,7 +11,7 @@ paths:                       # edit these for your Kaggle datasets
 
 data:
   prep_size: 512             # size of the cached, preprocessed images
-  arm: A                     # A = DDR only, B = DDR + EyePACS source-balanced, C = version 1 merge
+  arm: A                     # A = DDR only, B = DDR + EyePACS source-balanced, C = version 1 merge, D = DDR + EyePACS natural mix
   split_seed: 2024           # seed used ONCE to freeze the EyePACS patient split
   eyepacs_fractions: [0.70, 0.15, 0.15]   # train / val / test, split by patient
 

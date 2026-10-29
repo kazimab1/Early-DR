@@ -1,0 +1,28 @@
+source,arm,matched on,images per draw,matched AUROC,range (2.5-97.5%)
+APTOS,arm_A,same image size,612,0.989,0.987-0.990
+APTOS,arm_A,size + brightness + sharpness terciles,578,0.989,0.988-0.991
+APTOS,arm_A,size + brightness tercile,596,0.989,0.987-0.990
+APTOS,arm_B,same image size,612,0.993,0.989-0.994
+APTOS,arm_B,size + brightness + sharpness terciles,578,0.994,0.991-0.995
+APTOS,arm_B,size + brightness tercile,596,0.992,0.988-0.994
+APTOS,arm_C,same image size,612,0.969,0.965-0.973
+APTOS,arm_C,size + brightness + sharpness terciles,578,0.969,0.965-0.973
+APTOS,arm_C,size + brightness tercile,596,0.969,0.966-0.972
+DDR,arm_A,same image size,1832,0.975,0.974-0.977
+DDR,arm_A,size + brightness + sharpness terciles,1714,0.976,0.975-0.978
+DDR,arm_A,size + brightness tercile,1804,0.976,0.974-0.977
+DDR,arm_B,same image size,1832,0.978,0.977-0.979
+DDR,arm_B,size + brightness + sharpness terciles,1714,0.978,0.977-0.980
+DDR,arm_B,size + brightness tercile,1804,0.978,0.977-0.979
+DDR,arm_C,same image size,1832,0.974,0.972-0.975
+DDR,arm_C,size + brightness + sharpness terciles,1714,0.974,0.973-0.976
+DDR,arm_C,size + brightness tercile,1804,0.974,0.972-0.975
+EyePACS,arm_A,same image size,2106,0.78,0.771-0.788
+EyePACS,arm_A,size + brightness + sharpness terciles,1564,0.8,0.792-0.807
+EyePACS,arm_A,size + brightness tercile,1864,0.784,0.778-0.790
+EyePACS,arm_B,same image size,2106,0.884,0.879-0.889
+EyePACS,arm_B,size + brightness + sharpness terciles,1564,0.885,0.880-0.890
+EyePACS,arm_B,size + brightness tercile,1864,0.882,0.875-0.887
+EyePACS,arm_C,same image size,2106,0.711,0.703-0.717
+EyePACS,arm_C,size + brightness + sharpness terciles,1564,0.721,0.711-0.732
+EyePACS,arm_C,size + brightness tercile,1864,0.709,0.701-0.719

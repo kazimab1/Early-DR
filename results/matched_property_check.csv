@@ -1,0 +1,10 @@
+source,matched on,property-only AUROC (should be near 0.5)
+APTOS,same image size,0.839
+APTOS,size + brightness tercile,0.815
+APTOS,size + brightness + sharpness terciles,0.823
+DDR,same image size,0.808
+DDR,size + brightness tercile,0.799
+DDR,size + brightness + sharpness terciles,0.802
+EyePACS,same image size,0.535
+EyePACS,size + brightness tercile,0.558
+EyePACS,size + brightness + sharpness terciles,0.535

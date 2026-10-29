@@ -92,7 +92,7 @@ def main():
     print("  groups across splits inside one source:\n" + within.value_counts().to_string())
     picture(dups, work)
 
-    arm_of = {"arm_A": "A", "arm_B": "B", "arm_C": "C"}
+    arm_of = {"arm_A": "A", "arm_B": "B", "arm_C": "C", "arm_D": "D"}
     rows = []
     for name in args.arms:
         leaky = leaky_images(manifest, dups, arm_of[name])

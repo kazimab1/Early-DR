@@ -199,7 +199,8 @@ def rows_for_task(df, task):
 
 def select_arm(manifest, arm, split):
     """The images an arm uses for one split.
-    A: DDR only.  B: DDR + all EyePACS.  C: the version 1 merge (DDR + EyePACS grades 1, 3, 4)."""
+    A: DDR only.  B: DDR + all EyePACS, source-balanced by the sampler.  C: the version 1 merge (DDR + EyePACS
+    grades 1, 3, 4).  D: DDR + all EyePACS, the natural mix with NO source balancing (the realistic merge)."""
     part = manifest[manifest.split == split]
     ddr = part[part.source == "DDR"]
     eye = part[part.source == "EyePACS"]
