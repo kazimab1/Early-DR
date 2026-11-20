@@ -124,7 +124,7 @@ def test_sets(manifest, cfg, external):
                 for source in ["IDRiD", "APTOS"] if (manifest.source == source).any()}
     sets = {"DDR": select_arm(manifest, "A", "test"),
             "EyePACS": manifest[(manifest.source == "EyePACS") & (manifest.split == "test")]}
-    if cfg.data.arm != "A":                             # the arm's own pooled test split
+    if cfg.data.arm not in ("A", "E"):                  # the arm's own pooled test split (A and E are single-source)
         sets["arm_test"] = select_arm(manifest, cfg.data.arm, "test")
     return {k: v.reset_index(drop=True) for k, v in sets.items()}
 

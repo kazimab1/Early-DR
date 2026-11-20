@@ -200,12 +200,15 @@ def rows_for_task(df, task):
 def select_arm(manifest, arm, split):
     """The images an arm uses for one split.
     A: DDR only.  B: DDR + all EyePACS, source-balanced by the sampler.  C: the version 1 merge (DDR + EyePACS
-    grades 1, 3, 4).  D: DDR + all EyePACS, the natural mix with NO source balancing (the realistic merge)."""
+    grades 1, 3, 4).  D: DDR + all EyePACS, the natural mix with NO source balancing (the realistic merge).
+    E: EyePACS only (the mirror of arm A)."""
     part = manifest[manifest.split == split]
     ddr = part[part.source == "DDR"]
     eye = part[part.source == "EyePACS"]
     if arm == "A":
         return ddr.reset_index(drop=True)
+    if arm == "E":
+        return eye.reset_index(drop=True)
     if arm == "C":
         eye = eye[eye.grade.isin([1, 3, 4])]
     return pd.concat([ddr, eye], ignore_index=True)
